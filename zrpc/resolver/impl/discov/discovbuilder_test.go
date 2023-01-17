@@ -1,7 +1,8 @@
-package internal
+package discov
 
 import (
 	"fmt"
+	resolver2 "github.com/zeromicro/go-zero/zrpc/resolver/common"
 	"net/url"
 	"strings"
 	"testing"
@@ -13,8 +14,8 @@ import (
 )
 
 func TestDiscovBuilder_Scheme(t *testing.T) {
-	var b discovBuilder
-	assert.Equal(t, DiscovScheme, b.Scheme())
+	var b DiscovBuilder
+	assert.Equal(t, resolver2.DiscovScheme, b.Scheme())
 }
 
 func TestDiscovBuilder_Build(t *testing.T) {
@@ -28,10 +29,10 @@ func TestDiscovBuilder_Build(t *testing.T) {
 	for _, server := range servers.Servers {
 		addrs = append(addrs, server.Address)
 	}
-	u, err := url.Parse(fmt.Sprintf("%s://%s", DiscovScheme, strings.Join(addrs, ",")))
+	u, err := url.Parse(fmt.Sprintf("%s://%s", resolver2.DiscovScheme, strings.Join(addrs, ",")))
 	assert.NoError(t, err)
 
-	var b discovBuilder
+	var b DiscovBuilder
 	_, err = b.Build(resolver.Target{
 		URL: *u,
 	}, mockClientConn{}, resolver.BuildOptions{})

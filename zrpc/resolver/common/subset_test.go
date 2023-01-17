@@ -1,4 +1,4 @@
-package internal
+package common
 
 import (
 	"strconv"
@@ -36,7 +36,7 @@ func TestSubset(t *testing.T) {
 
 			m := make(map[interface{}]int)
 			for i := 0; i < 1000; i++ {
-				set := subset(append([]string(nil), vals...), test.sub)
+				set := Subset(append([]string(nil), vals...), test.sub)
 				if test.sub < test.set {
 					assert.Equal(t, test.sub, len(set))
 				} else {

@@ -1,8 +1,10 @@
-package internal
+package direct
 
 import (
 	"errors"
 	"fmt"
+	"github.com/zeromicro/go-zero/zrpc/resolver/common"
+	"github.com/zeromicro/go-zero/zrpc/resolver/mocked"
 	"net/url"
 	"strconv"
 	"strings"
@@ -19,9 +21,9 @@ func TestDirectBuilder_Build(t *testing.T) {
 		0,
 		1,
 		2,
-		subsetSize / 2,
-		subsetSize,
-		subsetSize * 2,
+		common.SubsetSize / 2,
+		common.SubsetSize,
+		common.SubsetSize * 2,
 	}
 
 	for _, test := range tests {
@@ -32,25 +34,25 @@ func TestDirectBuilder_Build(t *testing.T) {
 				servers = append(servers, fmt.Sprintf("localhost:%d", i))
 			}
 			var b directBuilder
-			cc := new(mockedClientConn)
-			target := fmt.Sprintf("%s:///%s", DirectScheme, strings.Join(servers, ","))
+			cc := mocked.New()
+			target := fmt.Sprintf("%s:///%s", common.DirectScheme, strings.Join(servers, ","))
 			uri, err := url.Parse(target)
 			assert.Nil(t, err)
-			cc.err = errors.New("foo")
+			cc.Err = errors.New("foo")
 			_, err = b.Build(resolver.Target{
 				URL: *uri,
 			}, cc, resolver.BuildOptions{})
 			assert.NotNil(t, err)
-			cc.err = nil
+			cc.Err = nil
 			_, err = b.Build(resolver.Target{
 				URL: *uri,
 			}, cc, resolver.BuildOptions{})
 			assert.NoError(t, err)
 
-			size := mathx.MinInt(test, subsetSize)
-			assert.Equal(t, size, len(cc.state.Addresses))
+			size := mathx.MinInt(test, common.SubsetSize)
+			assert.Equal(t, size, len(cc.State.Addresses))
 			m := make(map[string]lang.PlaceholderType)
-			for _, each := range cc.state.Addresses {
+			for _, each := range cc.State.Addresses {
 				m[each.Addr] = lang.Placeholder
 			}
 			assert.Equal(t, size, len(m))
@@ -60,5 +62,5 @@ func TestDirectBuilder_Build(t *testing.T) {
 
 func TestDirectBuilder_Scheme(t *testing.T) {
 	var b directBuilder
-	assert.Equal(t, DirectScheme, b.Scheme())
+	assert.Equal(t, common.DirectScheme, b.Scheme())
 }

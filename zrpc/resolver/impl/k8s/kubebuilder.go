@@ -1,14 +1,15 @@
-package internal
+package k8s
 
 import (
 	"context"
 	"fmt"
+	"github.com/zeromicro/go-zero/zrpc/resolver/common"
+	"github.com/zeromicro/go-zero/zrpc/resolver/impl/k8s/kube"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/proc"
 	"github.com/zeromicro/go-zero/core/threading"
-	"github.com/zeromicro/go-zero/zrpc/resolver/internal/kube"
 	"google.golang.org/grpc/resolver"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
@@ -22,6 +23,10 @@ const (
 )
 
 type kubeBuilder struct{}
+
+func init() {
+	resolver.Register(&kubeBuilder{})
+}
 
 func (b *kubeBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	_ resolver.BuildOptions) (resolver.Resolver, error) {
@@ -50,7 +55,7 @@ func (b *kubeBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 
 	handler := kube.NewEventHandler(func(endpoints []string) {
 		var addrs []resolver.Address
-		for _, val := range subset(endpoints, subsetSize) {
+		for _, val := range common.Subset(endpoints, common.SubsetSize) {
 			addrs = append(addrs, resolver.Address{
 				Addr: fmt.Sprintf("%s:%d", val, svc.Port),
 			})
@@ -78,9 +83,9 @@ func (b *kubeBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	}
 	handler.Update(endpoints)
 
-	return &nopResolver{cc: cc}, nil
+	return common.NewNopResolver(cc), nil
 }
 
 func (b *kubeBuilder) Scheme() string {
-	return KubernetesScheme
+	return common.KubernetesScheme
 }

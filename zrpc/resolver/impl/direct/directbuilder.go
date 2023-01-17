@@ -1,20 +1,25 @@
-package internal
+package direct
 
 import (
+	"github.com/zeromicro/go-zero/zrpc/resolver/common"
+	"github.com/zeromicro/go-zero/zrpc/resolver/targets"
 	"strings"
 
-	"github.com/zeromicro/go-zero/zrpc/resolver/internal/targets"
 	"google.golang.org/grpc/resolver"
 )
 
 type directBuilder struct{}
 
+func init() {
+	resolver.Register(&directBuilder{})
+}
+
 func (d *directBuilder) Build(target resolver.Target, cc resolver.ClientConn, _ resolver.BuildOptions) (
 	resolver.Resolver, error) {
 	endpoints := strings.FieldsFunc(targets.GetEndpoints(target), func(r rune) bool {
-		return r == EndpointSepChar
+		return r == common.EndpointSepChar
 	})
-	endpoints = subset(endpoints, subsetSize)
+	endpoints = common.Subset(endpoints, common.SubsetSize)
 	addrs := make([]resolver.Address, 0, len(endpoints))
 
 	for _, val := range endpoints {
@@ -28,9 +33,9 @@ func (d *directBuilder) Build(target resolver.Target, cc resolver.ClientConn, _ 
 		return nil, err
 	}
 
-	return &nopResolver{cc: cc}, nil
+	return common.NewNopResolver(cc), nil
 }
 
 func (d *directBuilder) Scheme() string {
-	return DirectScheme
+	return common.DirectScheme
 }

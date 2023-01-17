@@ -2,10 +2,10 @@ package kube
 
 import (
 	"fmt"
+	"github.com/zeromicro/go-zero/zrpc/resolver/targets"
 	"strconv"
 	"strings"
 
-	"github.com/zeromicro/go-zero/zrpc/resolver/internal/targets"
 	"google.golang.org/grpc/resolver"
 )
 
